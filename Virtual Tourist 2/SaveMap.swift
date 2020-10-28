@@ -24,14 +24,18 @@ class SaveMap {
     func saveMapRegion() {
         // This is called when savedRegion has a value
         if let region = savedRegion {
-            print(region)
-            let regions : [String : CLLocationDegrees] = [
-                "latitude" : region.center.latitude,
-                "longitude" : region.center.longitude,
-                "latitudeDelta": region.span.latitudeDelta,
-                "longitudeDelta" : region.span.longitudeDelta
-            ]
-            UserDefaults.standard.set(regions, forKey: "region")
+            if !region.center.latitude.isNaN && !region.center.latitude.isNaN {
+                let regions : [String : CLLocationDegrees] = [
+                    "latitude" : region.center.latitude,
+                    "longitude" : region.center.longitude,
+                    "latitudeDelta": region.span.latitudeDelta,
+                    "longitudeDelta" : region.span.longitudeDelta
+                ]
+                UserDefaults.standard.set(regions, forKey: "region")
+                print("\(region.center.latitude) -- \(region.center.longitude)")
+            } else {
+                print("Nothing to save \(region.center.longitude)")
+            }
         }
     }
     
@@ -45,5 +49,6 @@ class SaveMap {
             }
         }
         return nil
+        print("I was called!")
     }
 }

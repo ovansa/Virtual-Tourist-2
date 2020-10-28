@@ -31,6 +31,9 @@ class MapViewController: UIViewController {
         locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
         mapView.delegate = self
+        
+        pins = retrievePins()
+        populateMapWithPins(with: pins)
     }
     
     private func savePin(pin: Pins) {
@@ -44,8 +47,10 @@ class MapViewController: UIViewController {
         }
     }
     
-    private func retrievePins() {
-        pins = realm.objects(Pins.self)
+    private func retrievePins() -> Results<Pins>? {
+        let retrievedPins = realm.objects(Pins.self)
+        
+        return retrievedPins
     }
     
     //MARK: - Setup Map Method
@@ -60,7 +65,7 @@ class MapViewController: UIViewController {
         ])
         
         setupMapCenter()
-        addPin()
+        addAPinOnMap()
     }
     
     func setupMapCenter() {
@@ -70,13 +75,13 @@ class MapViewController: UIViewController {
         }
     }
     
-    func addPin() {
+    private func addAPinOnMap() {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(press:)))
         longPress.minimumPressDuration = 2.0
         mapView.addGestureRecognizer(longPress)
     }
     
-    @objc func addAnnotation(press: UILongPressGestureRecognizer) {
+    @objc private func addAnnotation(press: UILongPressGestureRecognizer) {
         if press.state == .began {
             let location = press.location(in: mapView)
             let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
@@ -84,6 +89,22 @@ class MapViewController: UIViewController {
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinate
             mapView.addAnnotation(annotation)
+            
+            let pin = Pins()
+            pin.latitude = annotation.coordinate.latitude
+            pin.longitude = annotation.coordinate.longitude
+            pin.id = String(annotation.coordinate.latitude) + String(annotation.coordinate.longitude)
+            savePin(pin: pin)
+        }
+    }
+    
+    private func populateMapWithPins(with pinResult: Results<Pins>?) {
+        if let thePins = pinResult {
+            for singlePin in thePins {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = CLLocationCoordinate2D(latitude: singlePin.latitude, longitude: singlePin.longitude)
+                mapView.addAnnotation(annotation)
+            }
         }
     }
 }
