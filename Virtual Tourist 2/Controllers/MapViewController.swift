@@ -36,11 +36,12 @@ class MapViewController: UIViewController {
         populateMapWithPins(with: pins)
     }
     
+    //MARK: - Methods to save and retrieve pins
+    
     private func savePin(pin: Pins) {
         do {
             try realm.write {
                 realm.add(pin)
-                print("Pin is saved")
             }
         } catch {
             print("Error saving pin: \(error)")
@@ -53,7 +54,7 @@ class MapViewController: UIViewController {
         return retrievedPins
     }
     
-    //MARK: - Setup Map Method
+    //MARK: - Methods for setting up map
     
     private func setupMap() {
         view.addSubview(mapView)
@@ -63,9 +64,20 @@ class MapViewController: UIViewController {
             mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
+        confirgureNavBarToHidden()
         setupMapCenter()
         addAPinOnMap()
+    }
+    
+    func confirgureNavBarToHidden() {
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.view.backgroundColor = .clear
+        navigationController?.navigationBar.tintColor = .white
+        let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
+        navigationItem.setHidesBackButton(true, animated: true)
     }
     
     func setupMapCenter() {
@@ -74,6 +86,8 @@ class MapViewController: UIViewController {
             mapView.setRegion(mapRegion, animated: true)
         }
     }
+    
+    //MARK: - Methods for adding Pins and populating map with Pins
     
     private func addAPinOnMap() {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(press:)))

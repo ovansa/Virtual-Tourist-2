@@ -22,6 +22,8 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        // Do something
+        let vc = MapImagesViewController()
+        vc.eat = "Something"
+        navigationController?.pushViewController(vc, animated: true)
     }
 }

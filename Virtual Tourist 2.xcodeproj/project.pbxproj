@@ -17,6 +17,7 @@
 		0B0E98B12548463900F092FF /* SaveMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98B02548463900F092FF /* SaveMap.swift */; };
 		0B6694432549387E00E9DE30 /* Pins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694422549387E00E9DE30 /* Pins.swift */; };
 		0B66944525493DB200E9DE30 /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944425493DB200E9DE30 /* Images.swift */; };
+		0B6694492549EE2F00E9DE30 /* MapImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694482549EE2F00E9DE30 /* MapImagesViewController.swift */; };
 		A66EFF9CEE5298EA9440FFAA /* Pods_Virtual_Tourist_2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548C0E7FA7A63AE6911E7281 /* Pods_Virtual_Tourist_2.framework */; };
 /* End PBXBuildFile section */
 
@@ -33,6 +34,7 @@
 		0B0E98B02548463900F092FF /* SaveMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMap.swift; sourceTree = "<group>"; };
 		0B6694422549387E00E9DE30 /* Pins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pins.swift; sourceTree = "<group>"; };
 		0B66944425493DB200E9DE30 /* Images.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
+		0B6694482549EE2F00E9DE30 /* MapImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapImagesViewController.swift; sourceTree = "<group>"; };
 		548C0E7FA7A63AE6911E7281 /* Pods_Virtual_Tourist_2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Virtual_Tourist_2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71706ADD12FDB10C870676EB /* Pods-Virtual Tourist 2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual Tourist 2.debug.xcconfig"; path = "Target Support Files/Pods-Virtual Tourist 2/Pods-Virtual Tourist 2.debug.xcconfig"; sourceTree = "<group>"; };
 		79365457BE5991BE83782933 /* Pods-Virtual Tourist 2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual Tourist 2.release.xcconfig"; path = "Target Support Files/Pods-Virtual Tourist 2/Pods-Virtual Tourist 2.release.xcconfig"; sourceTree = "<group>"; };
@@ -72,14 +74,14 @@
 			isa = PBXGroup;
 			children = (
 				0B6694412549386100E9DE30 /* Data Models */,
+				0B6694472549EDE300E9DE30 /* Views */,
+				0B6694462549EDC600E9DE30 /* Controllers */,
 				0B0E989825481E8500F092FF /* AppDelegate.swift */,
 				0B0E989A25481E8500F092FF /* SceneDelegate.swift */,
 				0B0E989E25481E8500F092FF /* Main.storyboard */,
 				0B0E98A125481E8600F092FF /* Assets.xcassets */,
 				0B0E98A325481E8600F092FF /* LaunchScreen.storyboard */,
 				0B0E98A625481E8600F092FF /* Info.plist */,
-				0B0E98AC25481EDD00F092FF /* MapViewController.swift */,
-				0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */,
 				0B0E98B02548463900F092FF /* SaveMap.swift */,
 			);
 			path = "Virtual Tourist 2";
@@ -92,6 +94,23 @@
 				0B66944425493DB200E9DE30 /* Images.swift */,
 			);
 			path = "Data Models";
+			sourceTree = "<group>";
+		};
+		0B6694462549EDC600E9DE30 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				0B0E98AC25481EDD00F092FF /* MapViewController.swift */,
+				0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */,
+				0B6694482549EE2F00E9DE30 /* MapImagesViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		0B6694472549EDE300E9DE30 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		98FFBB2AD548606F4A544C2B /* Pods */ = {
@@ -229,6 +248,7 @@
 				0B66944525493DB200E9DE30 /* Images.swift in Sources */,
 				0B0E989925481E8500F092FF /* AppDelegate.swift in Sources */,
 				0B0E989B25481E8500F092FF /* SceneDelegate.swift in Sources */,
+				0B6694492549EE2F00E9DE30 /* MapImagesViewController.swift in Sources */,
 				0B0E98AD25481EDD00F092FF /* MapViewController.swift in Sources */,
 				0B6694432549387E00E9DE30 /* Pins.swift in Sources */,
 				0B0E98B12548463900F092FF /* SaveMap.swift in Sources */,

@@ -34,7 +34,7 @@ class SaveMap {
                 UserDefaults.standard.set(regions, forKey: "region")
                 print("\(region.center.latitude) -- \(region.center.longitude)")
             } else {
-                print("Nothing to save \(region.center.longitude)")
+//                print("Nothing to save \(region.center.longitude)")
             }
         }
     }
@@ -48,7 +48,8 @@ class SaveMap {
                 return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta))
             }
         }
+//        print("I was called!")
         return nil
-        print("I was called!")
+        
     }
 }
