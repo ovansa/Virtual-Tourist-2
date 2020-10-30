@@ -19,21 +19,23 @@ class MapViewController: UIViewController {
     }()
     
     let locationManager = CLLocationManager()
+    var userCurrentLocation: CLLocationCoordinate2D?
+    
     let realm = try! Realm()
     
     var pins: Results<Pins>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupMap()
         
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.requestLocation()
         mapView.delegate = self
         
         pins = retrievePins()
         populateMapWithPins(with: pins)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        setupMap()
     }
     
     //MARK: - Methods to save and retrieve pins
@@ -67,6 +69,7 @@ class MapViewController: UIViewController {
         confirgureNavBarToHidden()
         setupMapCenter()
         addAPinOnMap()
+        initiateFetchingCurrentLocation()
     }
     
     func confirgureNavBarToHidden() {
@@ -78,12 +81,24 @@ class MapViewController: UIViewController {
         let textAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
         navigationItem.setHidesBackButton(true, animated: true)
+        navigationController?.navigationBar.isUserInteractionEnabled = true
+    }
+    
+    private func initiateFetchingCurrentLocation() {
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.delegate = self
+            locationManager.startUpdatingLocation()
+        }
     }
     
     func setupMapCenter() {
         if let region = SaveMap.shared.retrieveMapRegion() {
             let mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: region.center.latitude, longitude: region.center.longitude), span: MKCoordinateSpan(latitudeDelta: region.span.latitudeDelta, longitudeDelta: region.span.longitudeDelta))
             mapView.setRegion(mapRegion, animated: true)
+        } else {
+//            let mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: userCurrentLocation!.latitude, longitude: userCurrentLocation!.longitude), latitudinalMeters: 2000, longitudinalMeters: 2000)
+//            mapView.setRegion(mapRegion, animated: true)
         }
     }
     
@@ -108,6 +123,7 @@ class MapViewController: UIViewController {
             pin.latitude = annotation.coordinate.latitude
             pin.longitude = annotation.coordinate.longitude
             pin.id = String(annotation.coordinate.latitude) + String(annotation.coordinate.longitude)
+//            print("On creating annotation \(String(annotation.coordinate.latitude) + String(annotation.coordinate.longitude))")
             savePin(pin: pin)
         }
     }

@@ -10,6 +10,9 @@ import MapKit
 
 extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            userCurrentLocation = location.coordinate
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -23,7 +26,8 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         let vc = MapImagesViewController()
-        vc.eat = "Something"
+//        print("On tapping didSelect \(String(view.annotation?.coordinate.latitude as! Double) + String(view.annotation?.coordinate.longitude as! Double))")
+        vc.locationAnnotation = view
         navigationController?.pushViewController(vc, animated: true)
     }
 }
