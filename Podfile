@@ -5,6 +5,7 @@ target 'Virtual Tourist 2' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   pod 'RealmSwift'
+  pod 'MBProgressHUD'
 
   # Pods for Virtual Tourist 2
 

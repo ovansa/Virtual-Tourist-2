@@ -8,8 +8,13 @@
 
 import UIKit
 import MapKit
+import RealmSwift
+import MBProgressHUD
+
+typealias ImageCount = Int
 
 class MapImagesViewController: UIViewController {
+    
     var mapViewContainer: UIView = {
         var view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -69,8 +74,14 @@ class MapImagesViewController: UIViewController {
     let collectionCellId = "cellId"
     var collectionViewFlowLayout: UICollectionViewFlowLayout!
     
-    var location: Pins?
+    var locationSearchString: String {
+        return "\(locationAnnotation?.annotation?.coordinate.latitude ?? 0.0)" + "\(locationAnnotation?.annotation?.coordinate.longitude ?? 0.0)"
+    }
+    
     var locationAnnotation: MKAnnotationView?
+    
+    var imageResults: Results<Images>?
+    var location: Pins?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,7 +93,7 @@ class MapImagesViewController: UIViewController {
         
         imageCollectionView.delegate = self
         imageCollectionView.dataSource = self
-        imageCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: collectionCellId)
+        imageCollectionView.register(ImageViewCell.self, forCellWithReuseIdentifier: collectionCellId)
         
         if let annotationData = locationAnnotation {
             let latitude = annotationData.annotation?.coordinate.latitude
@@ -91,7 +102,60 @@ class MapImagesViewController: UIViewController {
             mapView.setRegion(mapRegion, animated: true)
             mapView.addAnnotation(annotationData.annotation!)
         }
+        fetchImageCounts()
     }
+    
+    var countOfImages: ImageCount? {
+        didSet {
+            setUpCollectionView()
+        }
+    }
+    
+    func setUpCollectionView() {
+        if let noOfImages = countOfImages {
+            if noOfImages > 0 {
+                imageCollectionView.hideLoader()
+                imageCollectionView.reloadData()
+            } else {
+                imageCollectionView.hideLoader()
+                imageCollectionView.setEmptyMessage("There is no imnage")
+            }
+        }
+    }
+    
+    func fetchImageCounts() {
+        imageCollectionView.showLoader(message: "Please wait...")
+        ImageDownloadManager.fetchImageURLList(latitude: (locationAnnotation?.annotation?.coordinate.latitude)!, longitude: (locationAnnotation?.annotation?.coordinate.longitude)!, urlList: handleImages(images:error:))
+    }
+    
+    func handleImages(images: [String]?, error: Error?) {
+        DispatchQueue.main.async {
+            print("locationSearchString: \(self.locationSearchString)")
+            print("I am here")
+            let thePin = RealmHelper.realm.objects(Pins.self).filter("id = %@", self.locationSearchString)
+            if let pin = thePin.first {
+                print("Pin count: \(pin.numberOfUrls)")
+                try! RealmHelper.realm.write {
+                    pin.numberOfUrls = images!.count
+                }
+            }
+            self.countOfImages = self.fetchCounts()
+        }
+    }
+    
+    func fetchCounts() -> ImageCount? {
+        let predicate = NSPredicate(format: "id = %@", locationSearchString)
+        let thePin = RealmHelper.realm.objects(Pins.self).filter(predicate)
+        
+        if let pin = thePin.first {
+            print("Pin count: \(pin.numberOfUrls)")
+            return pin.numberOfUrls
+        } else {
+            return 0
+        }
+    }
+    
+    
     
     @objc func backButtonPressed() {
         print("Back is tapped")
@@ -176,10 +240,10 @@ class MapImagesViewController: UIViewController {
     func setUpCollectionViewItemSize() {
         if collectionViewFlowLayout == nil {
             let _: CGFloat = 5
-            let lineSpacing: CGFloat = 1
-            let interItemSpacing: CGFloat = 1
+            let lineSpacing: CGFloat = 2
+            let interItemSpacing: CGFloat = 2
             
-            let itemSize = self.view.bounds.width / 3 - 2
+            let itemSize = self.view.bounds.width / 3 - 3
             
             collectionViewFlowLayout = UICollectionViewFlowLayout()
             
@@ -196,12 +260,13 @@ class MapImagesViewController: UIViewController {
 
 extension MapImagesViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 30
+        return countOfImages ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = imageCollectionView.dequeueReusableCell(withReuseIdentifier: collectionCellId, for: indexPath)
-        cell.backgroundColor = .red
+        let cell = imageCollectionView.dequeueReusableCell(withReuseIdentifier: collectionCellId, for: indexPath) as! ImageViewCell
+        cell.mapImage.image = #imageLiteral(resourceName: "VirtualTourist_512")
+        
         return cell
     }
 }
@@ -221,5 +286,36 @@ extension UIButton {
         self.layer.shadowOffset = CGSize(width: 0.0, height: 0.0)
         self.layer.shadowOpacity = 0.5
         self.layer.shadowPath = shadow.cgPath
+    }
+}
+
+extension UICollectionView {
+    func setEmptyMessage(_ message: String) {
+        let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        messageLabel.text = message
+        messageLabel.textColor = .black
+        messageLabel.numberOfLines = 0;
+        messageLabel.textAlignment = .center;
+        messageLabel.font = UIFont(name: "Avenir", size: 15)
+        messageLabel.sizeToFit()
+        
+        self.backgroundView = messageLabel;
+    }
+    
+    func restore() {
+        self.backgroundView = nil
+    }
+    
+    func showLoader(message msg: String?) {
+        let Indicator = MBProgressHUD.showAdded(to: self, animated: true)
+        Indicator.isUserInteractionEnabled = true
+        Indicator.detailsLabel.text = msg
+        Indicator.show(animated: true)
+         self.isScrollEnabled = false
+    }
+    
+    func hideLoader() {
+        MBProgressHUD.hide(for: self, animated: true)
+        self.isScrollEnabled = true
     }
 }

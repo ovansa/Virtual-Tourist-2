@@ -21,8 +21,6 @@ class MapViewController: UIViewController {
     let locationManager = CLLocationManager()
     var userCurrentLocation: CLLocationCoordinate2D?
     
-    let realm = try! Realm()
-    
     var pins: Results<Pins>?
     
     override func viewDidLoad() {
@@ -30,30 +28,12 @@ class MapViewController: UIViewController {
         
         mapView.delegate = self
         
-        pins = retrievePins()
+        pins = RealmHelper.retrievePins()
         populateMapWithPins(with: pins)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         setupMap()
-    }
-    
-    //MARK: - Methods to save and retrieve pins
-    
-    private func savePin(pin: Pins) {
-        do {
-            try realm.write {
-                realm.add(pin)
-            }
-        } catch {
-            print("Error saving pin: \(error)")
-        }
-    }
-    
-    private func retrievePins() -> Results<Pins>? {
-        let retrievedPins = realm.objects(Pins.self)
-        
-        return retrievedPins
     }
     
     //MARK: - Methods for setting up map
@@ -70,8 +50,9 @@ class MapViewController: UIViewController {
         setupMapCenter()
         addAPinOnMap()
         initiateFetchingCurrentLocation()
+        
     }
-    
+
     func confirgureNavBarToHidden() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
@@ -123,8 +104,7 @@ class MapViewController: UIViewController {
             pin.latitude = annotation.coordinate.latitude
             pin.longitude = annotation.coordinate.longitude
             pin.id = String(annotation.coordinate.latitude) + String(annotation.coordinate.longitude)
-//            print("On creating annotation \(String(annotation.coordinate.latitude) + String(annotation.coordinate.longitude))")
-            savePin(pin: pin)
+            RealmHelper.savePin(pin: pin)
         }
     }
     

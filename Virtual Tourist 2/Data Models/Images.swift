@@ -10,5 +10,6 @@ import RealmSwift
 
 class Images: Object {
     @objc dynamic var directoryURLOFSavedImage: String = ""
-    var parentPin = LinkingObjects(fromType: Pins.self, property: "imageUrls")
+    let parentPin = LinkingObjects(fromType: Pins.self, property: "imageUrls")
 }
+

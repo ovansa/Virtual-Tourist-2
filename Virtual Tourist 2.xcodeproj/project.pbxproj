@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B027A4D255457ED00C2180F /* RealmHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B027A4C255457ED00C2180F /* RealmHelper.swift */; };
 		0B0E989925481E8500F092FF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E989825481E8500F092FF /* AppDelegate.swift */; };
 		0B0E989B25481E8500F092FF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E989A25481E8500F092FF /* SceneDelegate.swift */; };
 		0B0E98A025481E8500F092FF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B0E989E25481E8500F092FF /* Main.storyboard */; };
@@ -18,10 +19,14 @@
 		0B6694432549387E00E9DE30 /* Pins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694422549387E00E9DE30 /* Pins.swift */; };
 		0B66944525493DB200E9DE30 /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944425493DB200E9DE30 /* Images.swift */; };
 		0B6694492549EE2F00E9DE30 /* MapImagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694482549EE2F00E9DE30 /* MapImagesViewController.swift */; };
+		0B66944B254C179000E9DE30 /* ImageViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944A254C179000E9DE30 /* ImageViewCell.swift */; };
+		0B66944D254C20AB00E9DE30 /* ImageDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944C254C20AB00E9DE30 /* ImageDownloadManager.swift */; };
+		0B66944F254C28EC00E9DE30 /* ImageURLS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944E254C28EC00E9DE30 /* ImageURLS.swift */; };
 		A66EFF9CEE5298EA9440FFAA /* Pods_Virtual_Tourist_2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548C0E7FA7A63AE6911E7281 /* Pods_Virtual_Tourist_2.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B027A4C255457ED00C2180F /* RealmHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmHelper.swift; sourceTree = "<group>"; };
 		0B0E989525481E8500F092FF /* Virtual Tourist 2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Virtual Tourist 2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B0E989825481E8500F092FF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0B0E989A25481E8500F092FF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -35,6 +40,9 @@
 		0B6694422549387E00E9DE30 /* Pins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pins.swift; sourceTree = "<group>"; };
 		0B66944425493DB200E9DE30 /* Images.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
 		0B6694482549EE2F00E9DE30 /* MapImagesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapImagesViewController.swift; sourceTree = "<group>"; };
+		0B66944A254C179000E9DE30 /* ImageViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewCell.swift; sourceTree = "<group>"; };
+		0B66944C254C20AB00E9DE30 /* ImageDownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDownloadManager.swift; sourceTree = "<group>"; };
+		0B66944E254C28EC00E9DE30 /* ImageURLS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageURLS.swift; sourceTree = "<group>"; };
 		548C0E7FA7A63AE6911E7281 /* Pods_Virtual_Tourist_2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Virtual_Tourist_2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		71706ADD12FDB10C870676EB /* Pods-Virtual Tourist 2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual Tourist 2.debug.xcconfig"; path = "Target Support Files/Pods-Virtual Tourist 2/Pods-Virtual Tourist 2.debug.xcconfig"; sourceTree = "<group>"; };
 		79365457BE5991BE83782933 /* Pods-Virtual Tourist 2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Virtual Tourist 2.release.xcconfig"; path = "Target Support Files/Pods-Virtual Tourist 2/Pods-Virtual Tourist 2.release.xcconfig"; sourceTree = "<group>"; };
@@ -52,6 +60,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0B027A4B2554570300C2180F /* Realm */ = {
+			isa = PBXGroup;
+			children = (
+				0B027A4C255457ED00C2180F /* RealmHelper.swift */,
+			);
+			path = Realm;
+			sourceTree = "<group>";
+		};
 		0B0E988C25481E8500F092FF = {
 			isa = PBXGroup;
 			children = (
@@ -90,8 +106,11 @@
 		0B6694412549386100E9DE30 /* Data Models */ = {
 			isa = PBXGroup;
 			children = (
+				0B027A4B2554570300C2180F /* Realm */,
 				0B6694422549387E00E9DE30 /* Pins.swift */,
 				0B66944425493DB200E9DE30 /* Images.swift */,
+				0B66944C254C20AB00E9DE30 /* ImageDownloadManager.swift */,
+				0B66944E254C28EC00E9DE30 /* ImageURLS.swift */,
 			);
 			path = "Data Models";
 			sourceTree = "<group>";
@@ -109,6 +128,7 @@
 		0B6694472549EDE300E9DE30 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0B66944A254C179000E9DE30 /* ImageViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -246,7 +266,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B66944525493DB200E9DE30 /* Images.swift in Sources */,
+				0B027A4D255457ED00C2180F /* RealmHelper.swift in Sources */,
+				0B66944B254C179000E9DE30 /* ImageViewCell.swift in Sources */,
 				0B0E989925481E8500F092FF /* AppDelegate.swift in Sources */,
+				0B66944D254C20AB00E9DE30 /* ImageDownloadManager.swift in Sources */,
+				0B66944F254C28EC00E9DE30 /* ImageURLS.swift in Sources */,
 				0B0E989B25481E8500F092FF /* SceneDelegate.swift in Sources */,
 				0B6694492549EE2F00E9DE30 /* MapImagesViewController.swift in Sources */,
 				0B0E98AD25481EDD00F092FF /* MapViewController.swift in Sources */,

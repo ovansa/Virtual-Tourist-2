@@ -26,8 +26,17 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         let vc = MapImagesViewController()
-//        print("On tapping didSelect \(String(view.annotation?.coordinate.latitude as! Double) + String(view.annotation?.coordinate.longitude as! Double))")
+        let searchString = "\(view.annotation!.coordinate.latitude)" + "\(view.annotation!.coordinate.longitude)"
+        
+        let predicate = NSPredicate(format: "id = %@", searchString)
+        let thePin = RealmHelper.realm.objects(Pins.self).filter(predicate)
+ 
         vc.locationAnnotation = view
+        let pina = Pins()
+        pina.latitude = (view.annotation?.coordinate.latitude)!
+        pina.longitude = (view.annotation?.coordinate.longitude)!
+        pina.id = "\(view.annotation!.coordinate.latitude)" + "\(view.annotation!.coordinate.latitude)"
+        vc.location = thePin[0]
         navigationController?.pushViewController(vc, animated: true)
     }
 }
