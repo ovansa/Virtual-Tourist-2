@@ -15,6 +15,8 @@ typealias ImageCount = Int
 
 class MapImagesViewController: UIViewController {
     
+    let maxImages = 42
+    
     var mapViewContainer: UIView = {
         var view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -77,16 +79,27 @@ class MapImagesViewController: UIViewController {
     var locationSearchString: String {
         return "\(locationAnnotation?.annotation?.coordinate.latitude ?? 0.0)" + "\(locationAnnotation?.annotation?.coordinate.longitude ?? 0.0)"
     }
-    
+    var location: Pins?
     var locationAnnotation: MKAnnotationView?
     
-    var imageResults: Results<Images>?
-    var location: Pins?
+    var imageResults: List<Images>?
+    
+    var countOfImages: ImageCount? {
+        didSet {
+            setUpInitialCollectionView()
+        }
+    }
+    
+    // On loading view, display a loader
+    // While displaying loader, fetch count of location from local storage
+    // If count is 0, make request to fetch new count from API, and store new count in local storage
+    // If count is greater than 0, set the count of location to urlcount
+    // And fetch the directory image urls attached to location
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .green
         
         configureNavBar()
         setupView()
@@ -102,60 +115,118 @@ class MapImagesViewController: UIViewController {
             mapView.setRegion(mapRegion, animated: true)
             mapView.addAnnotation(annotationData.annotation!)
         }
-        fetchImageCounts()
-    }
-    
-    var countOfImages: ImageCount? {
-        didSet {
-            setUpCollectionView()
+        
+        if (location?.imageUrls.count)! > 0 {
+            imageResults = location?.imageUrls
+            countOfImages = imageResults?.count
+        } else {
+            initiateImageRequests()
         }
     }
     
-    func setUpCollectionView() {
+    func setUpInitialCollectionView() {
+        
         if let noOfImages = countOfImages {
+            print("Count of images \(noOfImages)")
             if noOfImages > 0 {
                 imageCollectionView.hideLoader()
                 imageCollectionView.reloadData()
+                
             } else {
                 imageCollectionView.hideLoader()
+                imageCollectionView.reloadData()
                 imageCollectionView.setEmptyMessage("There is no imnage")
+                
             }
         }
     }
     
-    func fetchImageCounts() {
+    //MARK: - Fetch the list of image urls and save count to database
+    
+    // Initiate the request for the list of images
+    func initiateImageRequests() {
         imageCollectionView.showLoader(message: "Please wait...")
-        ImageDownloadManager.fetchImageURLList(latitude: (locationAnnotation?.annotation?.coordinate.latitude)!, longitude: (locationAnnotation?.annotation?.coordinate.longitude)!, urlList: handleImages(images:error:))
+        ImageDownloadManager.fetchImageURLList(latitude: (locationAnnotation?.annotation?.coordinate.latitude)!, longitude: (locationAnnotation?.annotation?.coordinate.longitude)!, urlList: updatePinWithURLCount(images:error:))
     }
     
-    func handleImages(images: [String]?, error: Error?) {
-        DispatchQueue.main.async {
-            print("locationSearchString: \(self.locationSearchString)")
-            print("I am here")
-            let thePin = RealmHelper.realm.objects(Pins.self).filter("id = %@", self.locationSearchString)
-            if let pin = thePin.first {
-                print("Pin count: \(pin.numberOfUrls)")
-                try! RealmHelper.realm.write {
-                    pin.numberOfUrls = images!.count
+    // The images are fetched for pin and the count is updated in local storage
+    func updatePinWithURLCount(images: TheImageList?, error: Error?) {
+        DispatchQueue.main.async { [self] in
+            if let theError = error {
+                print("Error fetching urls: \(theError)")
+            }
+            
+            if let theImageList = images {
+                let thePin = RealmHelper.realm.objects(Pins.self).filter("id = %@", self.locationSearchString)
+                if let pin = thePin.first {
+                    try! RealmHelper.realm.write {
+                        pin.numberOfUrls = theImageList.count > maxImages ? maxImages : theImageList.count
+                    }
+                    // Set the count for collectionView
+                    self.countOfImages = self.fetchCounts()
+                    print("Printing count from UpdatePinWithURL \(String(describing: self.countOfImages))")
+                    // Make request to download images and then save to directory
+                    self.downloadAndSaveImageToDirectory(theImageList)
+                } else {
+                    print("There is no image: \(error.debugDescription)")
                 }
             }
-            self.countOfImages = self.fetchCounts()
         }
     }
     
+    // Save downloaded 
+    func downloadAndSaveImageToDirectory(_ images: TheImageList) {
+        let dispatchGroup = DispatchGroup()
+        if !images.isEmpty && images.count > maxImages {
+            for singleImage in images[0..<maxImages] {
+                dispatchGroup.enter()
+                fetchAndSaveImageToRealmDB(singleImage) { (_) in
+                    dispatchGroup.leave()
+                }
+            }
+        } else {
+            for singleImage in images {
+                dispatchGroup.enter()
+                fetchAndSaveImageToRealmDB(singleImage) { (_) in
+                    dispatchGroup.leave()
+                }
+            }
+        }
+        
+        dispatchGroup.notify(queue: DispatchQueue.main) {
+            print("Finished fetching images")
+            self.imageResults = RealmHelper.retrieveImageURLs(self.locationSearchString)
+            self.countOfImages = self.imageResults?.count
+            self.imageCollectionView.reloadData()
+            self.imageCollectionView.hideLoader()
+        }
+    }
+    
+    private func fetchAndSaveImageToRealmDB(_ singleImage: ImageModel, isDone: @escaping(Bool) -> Void) {
+        ImageDownloadManager.fetchImage(url: singleImage.imageURL) { [self] (image) in
+            if let directoryUrl = ImageDownloadManager.saveDownloadedImageToDirectory(imageName: singleImage.id, image: image) {
+                try! RealmHelper.realm.write {
+                    let realmImage = Images()
+                    realmImage.directoryURLOFSavedImage = directoryUrl
+                    self.location?.imageUrls.append(realmImage)
+                    RealmHelper.realm.add(realmImage)
+                    isDone(true)
+                }
+            }
+        }
+    }
+    
+    // Retrieve the fetched numberOfUrls field from Pin
     func fetchCounts() -> ImageCount? {
         let predicate = NSPredicate(format: "id = %@", locationSearchString)
         let thePin = RealmHelper.realm.objects(Pins.self).filter(predicate)
         
         if let pin = thePin.first {
-            print("Pin count: \(pin.numberOfUrls)")
             return pin.numberOfUrls
         } else {
             return 0
         }
     }
-    
-    
     
     @objc func backButtonPressed() {
         print("Back is tapped")
@@ -240,15 +311,15 @@ class MapImagesViewController: UIViewController {
     func setUpCollectionViewItemSize() {
         if collectionViewFlowLayout == nil {
             let _: CGFloat = 5
-            let lineSpacing: CGFloat = 2
-            let interItemSpacing: CGFloat = 2
+            let lineSpacing: CGFloat = 1
+            let interItemSpacing: CGFloat = 1
             
-            let itemSize = self.view.bounds.width / 3 - 3
+            let itemSize = self.view.bounds.width / 3 - 1
             
             collectionViewFlowLayout = UICollectionViewFlowLayout()
             
             collectionViewFlowLayout.itemSize = CGSize(width: itemSize, height: itemSize + 20)
-            collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+            collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 1, left: 0, bottom: 1, right: 0)
             collectionViewFlowLayout.scrollDirection = .vertical
             collectionViewFlowLayout.minimumLineSpacing = lineSpacing
             collectionViewFlowLayout.minimumInteritemSpacing = interItemSpacing
@@ -265,8 +336,11 @@ extension MapImagesViewController: UICollectionViewDelegate, UICollectionViewDat
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = imageCollectionView.dequeueReusableCell(withReuseIdentifier: collectionCellId, for: indexPath) as! ImageViewCell
-        cell.mapImage.image = #imageLiteral(resourceName: "VirtualTourist_512")
         
+        if imageResults != nil {
+            cell.configureCell(image: imageResults![indexPath.item].directoryURLOFSavedImage)
+        }
+
         return cell
     }
 }
@@ -311,7 +385,7 @@ extension UICollectionView {
         Indicator.isUserInteractionEnabled = true
         Indicator.detailsLabel.text = msg
         Indicator.show(animated: true)
-         self.isScrollEnabled = false
+        self.isScrollEnabled = false
     }
     
     func hideLoader() {

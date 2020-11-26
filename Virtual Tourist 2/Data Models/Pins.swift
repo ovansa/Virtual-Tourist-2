@@ -14,6 +14,10 @@ class Pins: Object {
     @objc dynamic var longitude: Double = 0.0
     @objc dynamic var numberOfUrls: Int = 0
     let imageUrls = List<Images>()
+    
+    override static func primaryKey() -> String? {
+        return "id"
+    }
 }
 
 // 1. Create models to store pins

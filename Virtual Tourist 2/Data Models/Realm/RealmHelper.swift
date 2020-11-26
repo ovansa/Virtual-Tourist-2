@@ -27,7 +27,7 @@ struct RealmHelper {
         return retrievedPins
     }
     
-    //MARK: - Method to save image
+    //MARK: - Save Image Method
     static func saveImage(image: Images) {
         do {
             try realm.write {
@@ -38,5 +38,13 @@ struct RealmHelper {
         }
     }
     
-    
+    //MARK: - Retrieve Images Method
+    static func retrieveImageURLs(_ searchString: String) -> List<Images>? {
+        let thePin = RealmHelper.realm.objects(Pins.self).filter("id = %@", searchString)
+        if let pin = thePin.first {
+            return pin.imageUrls
+        } else {
+            return nil
+        }
+    }
 }

@@ -10,6 +10,7 @@ import UIKit
 import RealmSwift
 
 typealias ImageList = [String]
+typealias TheImageList = [ImageModel]
 
 struct ImageDownloadManager {
     let realm = try! Realm()
@@ -17,7 +18,7 @@ struct ImageDownloadManager {
     
     //MARK: - Methods to fetch and parse the list of image URLs
     
-    static func fetchImageURLList(latitude: Double, longitude: Double, urlList: @escaping(ImageList?, Error?) -> Void) {
+    static func fetchImageURLList(latitude: Double, longitude: Double, urlList: @escaping(TheImageList?, Error?) -> Void) {
         if var imageListUrl = URLComponents(string: imageURL) {
             imageListUrl.queryItems = [
                 URLQueryItem(name: "method", value: "flickr.photos.search"),
@@ -48,9 +49,9 @@ struct ImageDownloadManager {
         }
     }
     
-    static func parseImageURLS(_ imageURLSData: Data) -> ImageList? {
+    static func parseImageURLS(_ imageURLSData: Data) -> TheImageList? {
         let decoder = JSONDecoder()
-        var imageList = ImageList()
+        var imageList = TheImageList()
         
         do {
             let decodedData = try decoder.decode(ImageURLS.self, from: imageURLSData)
@@ -64,7 +65,7 @@ struct ImageDownloadManager {
                 let title = photo.title
                 
                 let image = ImageURLModel(id: id, farm: farm, owner: owner, secret: secret, server: server, title: title)
-                imageList.append(image.imageURL)
+                imageList.append(ImageModel(id: id, imageURL: image.imageURL))
             }
             
             return imageList
@@ -73,93 +74,42 @@ struct ImageDownloadManager {
             return nil
         }
     }
-    
-    //MARK: - Download, Save, and Return directory strings of Images
-//    
-//    
-////    func fetchSavedImageURL(from urls: [ImageModel]) -> ImageList {
-////        let semaphore = DispatchSemaphore(value: 0)
-////        var imageList = ImageList()
-////
-////        DispatchQueue.main.async {
-////            for imageUrl in urls {
-////                self.downloadImage(url: imageUrl.imageURL) { (image) in
-////                    if let directoryUrl = self.saveDownloadedImageToDirectory(imageName: imageUrl.id, image: image) {
-////                        imageList.append(directoryUrl)
-////                        semaphore.signal()
-////                    }
-////                }
-////            }
-////        }
-////        semaphore.wait()
-////        return imageList
-////    }
-//
-//    
-//    func fetchSavedImageURL(from urls: [ImageModel], listOFImages: @escaping (ImageList) -> Void) {
-//        let group = DispatchGroup()
-//        var imageList = ImageList()
-//        
-//        if !urls.isEmpty {
-//            if urls.count >= 20 {
-//                for imageUrl in urls[0..<20] {
-//                    group.enter()
-//                    fetchImage(url: imageUrl.imageURL) { (image) in
-//                        if let directoryUrl = self.saveDownloadedImageToDirectory(imageName: imageUrl.id, image: image) {
-//                            imageList.append(directoryUrl)
-//                        }
-//                        group.leave()
-//                    }
-//                }
-//            }
-//        } else {
-//            print("There is no url")
-//        }
-//        
-//        group.notify(queue: .main) {
-//            listOFImages(imageList)
-//        }
-//    }
-//    
-//    func fetchImage(url: String, singleImage: @escaping(UIImage) -> Void) {
-//        if let urlString = URL(string: url) {
-//            let session = URLSession(configuration: .default)
-//            
-//            let task = session.dataTask(with: urlString) { (data, response, error) in
-//                if error != nil {
-//                    print("Error fetching image data: \(String(describing: error))")
-//                }
-//                
-//                if let safeImage = data {
-//                    let image = UIImage(data: safeImage)
-//                    DispatchQueue.main.async {
-//                        singleImage(image!)
-//                    }
-//                }
-//            }
-//            task.resume()
-//        }
-//    }
-//    
-//    
-//    
-//    // Fetch list of images
-//    // Save image urls to
-//    
-//    func saveDownloadedImageToDirectory(imageName: String, image: UIImage) -> String? {
-//        let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//        let name = String("\(imageName).jpg")
-//        let documentUrl = document.appendingPathComponent(name)
-//        
-//        if let safeImage = image.jpegData(compressionQuality: 1) {
-//            do {
-//                try safeImage.write(to: documentUrl)
-//            } catch {
-//                print("Error writing image to disk: \(error)")
-//            }
-//        }
-//        return documentUrl.absoluteString
-//    }
+   
+    static func fetchImage(url: String, singleImage: @escaping(UIImage) -> Void) {
+        if let urlString = URL(string: url) {
+            let session = URLSession(configuration: .default)
+            
+            let task = session.dataTask(with: urlString) { (data, response, error) in
+                if error != nil {
+                    print("Error fetching image data: \(String(describing: error))")
+                }
+                
+                if let safeImage = data {
+                    let image = UIImage(data: safeImage)
+                    DispatchQueue.main.async {
+                        singleImage(image!)
+                    }
+                }
+            }
+            task.resume()
+        }
+    }
+
+    static func saveDownloadedImageToDirectory(imageName: String, image: UIImage) -> String? {
+        let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let name = String("\(imageName).jpg")
+        let documentUrl = document.appendingPathComponent(name)
+        print(documentUrl)
+        
+        if let safeImage = image.jpegData(compressionQuality: 1) {
+            do {
+                try safeImage.write(to: documentUrl)
+            } catch {
+                print("Error writing image to disk: \(error)")
+            }
+        }
+        return name
+    }
 }
 
 struct ImageURLModel {
@@ -175,7 +125,7 @@ struct ImageURLModel {
     }
 }
 
-//struct ImageModel {
-//    let id: String
-//    let imageURL: String
-//}
+struct ImageModel {
+    let id: String
+    let imageURL: String
+}
