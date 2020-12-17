@@ -11,9 +11,5 @@ import RealmSwift
 class Images: Object {
     @objc dynamic var directoryURLOFSavedImage: String = ""
     let parentPin = LinkingObjects(fromType: Pins.self, property: "imageUrls")
-    
-    override static func primaryKey() -> String? {
-        return "directoryURLOFSavedImage"
-    }
 }
 

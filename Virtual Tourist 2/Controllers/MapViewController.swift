@@ -11,11 +11,31 @@ import MapKit
 import CoreLocation
 import RealmSwift
 
+let lightBlueColor = UIColor(displayP3Red: 3/255, green: 169/255, blue: 244/255, alpha: 1)
+
 class MapViewController: UIViewController {
     var mapView: MKMapView = {
         var map = MKMapView()
         map.translatesAutoresizingMaskIntoConstraints = false
         return map
+    }()
+    
+    var showIsHidden: Bool?
+    
+    let showView: UIView = {
+       let view = UIView()
+        view.backgroundColor = lightBlueColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    let showViewText: UILabel = {
+       let label = UILabel()
+        label.text = "Touch and hold a location on the map to drop a pin"
+        label.textColor = .white
+        label.font = UIFont(name: "Avenir-Heavy", size: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     let locationManager = CLLocationManager()
@@ -27,14 +47,36 @@ class MapViewController: UIViewController {
         super.viewDidLoad()
         
         mapView.delegate = self
-        
-        pins = RealmHelper.retrievePins()
-        populateMapWithPins(with: pins)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         setupMap()
+        pins = RealmHelper.retrievePins()
+        populateMapWithPins(with: pins)
+        if pins!.isEmpty {
+            showHint()
+            hideHint()
+        } else {
+            showView.isHidden = true
+        }
     }
+    
+    private func showHint() {
+        showView.isHidden = true
+        UIView.animate(withDuration: 1.0) {
+            self.showView.isHidden = false
+            self.showView.layoutIfNeeded()
+        }
+    }
+    
+    private func hideHint() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            UIView.animate(withDuration: 1.0) {
+               self.showView.isHidden = true
+                self.showView.layoutIfNeeded()
+            }
+        }
+     }
     
     //MARK: - Methods for setting up map
     
@@ -46,11 +88,27 @@ class MapViewController: UIViewController {
             mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        initiateFetchingCurrentLocation()
         confirgureNavBarToHidden()
         setupMapCenter()
         addAPinOnMap()
-        initiateFetchingCurrentLocation()
+        setupOtherViews()
+    }
+    
+    func setupOtherViews() {
+        view.addSubview(showView)
+        NSLayoutConstraint.activate([
+            showView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
+            showView.heightAnchor.constraint(equalToConstant: 80.0),
+            showView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            showView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+        ])
         
+        showView.addSubview(showViewText)
+        NSLayoutConstraint.activate([
+            showViewText.centerXAnchor.constraint(equalTo: showView.centerXAnchor),
+            showViewText.centerYAnchor.constraint(equalTo: showView.centerYAnchor, constant: 20.0)
+        ])
     }
 
     func confirgureNavBarToHidden() {

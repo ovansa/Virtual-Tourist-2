@@ -12,10 +12,12 @@ import RealmSwift
 import MBProgressHUD
 
 typealias ImageCount = Int
+typealias ListOfImages = List<Images>
 
-class MapImagesViewController: UIViewController {
+class ImageAlbumController: UIViewController {
     
     let maxImages = 42
+    var sentControlId: String?
     
     var mapViewContainer: UIView = {
         var view = UIView()
@@ -73,12 +75,29 @@ class MapImagesViewController: UIViewController {
         return button
     }()
     
+    let hintView: UIView = {
+        let view = UIView()
+        view.backgroundColor = lightBlueColor
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    let showViewText: UILabel = {
+        let label = UILabel()
+        label.text = "Fetching pictures, please wait..."
+        label.textColor = .white
+        label.font = UIFont(name: "Avenir-Heavy", size: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     let collectionCellId = "cellId"
     var collectionViewFlowLayout: UICollectionViewFlowLayout!
     
     var locationSearchString: String {
         return "\(locationAnnotation?.annotation?.coordinate.latitude ?? 0.0)" + "\(locationAnnotation?.annotation?.coordinate.longitude ?? 0.0)"
     }
+    
     var location: Pins?
     var locationAnnotation: MKAnnotationView?
     
@@ -90,19 +109,12 @@ class MapImagesViewController: UIViewController {
         }
     }
     
-    // On loading view, display a loader
-    // While displaying loader, fetch count of location from local storage
-    // If count is 0, make request to fetch new count from API, and store new count in local storage
-    // If count is greater than 0, set the count of location to urlcount
-    // And fetch the directory image urls attached to location
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureNavBar()
         setupView()
+        hintView.isHidden = true
         
         imageCollectionView.delegate = self
         imageCollectionView.dataSource = self
@@ -124,10 +136,27 @@ class MapImagesViewController: UIViewController {
         }
     }
     
-    func setUpInitialCollectionView() {
+    override func viewWillAppear(_ animated: Bool) {
+        if let controller = sentControlId {
+            if controller == "imageViewController" {
+                imageResults = location?.imageUrls
+                countOfImages = imageResults?.count
+            } else {
+                if (location?.imageUrls.count)! > 0 {
+                    imageResults = location?.imageUrls
+                    countOfImages = imageResults?.count
+                } else {
+                    initiateImageRequests()
+                }
+            }
+        }
         
+        hintView.isHidden = true
+        
+    }
+    
+    private func setUpInitialCollectionView() {
         if let noOfImages = countOfImages {
-            print("Count of images \(noOfImages)")
             if noOfImages > 0 {
                 imageCollectionView.hideLoader()
                 imageCollectionView.reloadData()
@@ -135,8 +164,7 @@ class MapImagesViewController: UIViewController {
             } else {
                 imageCollectionView.hideLoader()
                 imageCollectionView.reloadData()
-                imageCollectionView.setEmptyMessage("There is no imnage")
-                
+                imageCollectionView.setEmptyMessage("There is no image :(")
             }
         }
     }
@@ -144,65 +172,62 @@ class MapImagesViewController: UIViewController {
     //MARK: - Fetch the list of image urls and save count to database
     
     // Initiate the request for the list of images
-    func initiateImageRequests() {
-        imageCollectionView.showLoader(message: "Please wait...")
+    private func initiateImageRequests() {
+        imageCollectionView.showLoader(message: "Fetching Images... please wait...")
         ImageDownloadManager.fetchImageURLList(latitude: (locationAnnotation?.annotation?.coordinate.latitude)!, longitude: (locationAnnotation?.annotation?.coordinate.longitude)!, urlList: updatePinWithURLCount(images:error:))
     }
     
     // The images are fetched for pin and the count is updated in local storage
-    func updatePinWithURLCount(images: TheImageList?, error: Error?) {
+    private func updatePinWithURLCount(images: TheImageList?, error: Error?) {
         DispatchQueue.main.async { [self] in
             if let theError = error {
-                print("Error fetching urls: \(theError)")
+                self.imageCollectionView.hideLoader()
+                self.imageCollectionView.setEmptyMessage("\(theError.localizedDescription)\n Tap refresh button to reload.")
             }
             
             if let theImageList = images {
                 let thePin = RealmHelper.realm.objects(Pins.self).filter("id = %@", self.locationSearchString)
                 if let pin = thePin.first {
                     try! RealmHelper.realm.write {
-                        pin.numberOfUrls = theImageList.count > maxImages ? maxImages : theImageList.count
+                        pin.numberOfUrls = theImageList.count > self.maxImages ? self.maxImages : theImageList.count
                     }
-                    // Set the count for collectionView
                     self.countOfImages = self.fetchCounts()
-                    print("Printing count from UpdatePinWithURL \(String(describing: self.countOfImages))")
-                    // Make request to download images and then save to directory
                     self.downloadAndSaveImageToDirectory(theImageList)
                 } else {
-                    print("There is no image: \(error.debugDescription)")
+                    print("There is no image: \(error!.localizedDescription)")
                 }
             }
         }
     }
     
     // Save downloaded 
-    func downloadAndSaveImageToDirectory(_ images: TheImageList) {
+    private func downloadAndSaveImageToDirectory(_ images: TheImageList) {
         let dispatchGroup = DispatchGroup()
         if !images.isEmpty && images.count > maxImages {
             for singleImage in images[0..<maxImages] {
                 dispatchGroup.enter()
-                fetchAndSaveImageToRealmDB(singleImage) { (_) in
+                fetchAndSaveImageToDB(singleImage) { (_) in
                     dispatchGroup.leave()
                 }
             }
         } else {
             for singleImage in images {
                 dispatchGroup.enter()
-                fetchAndSaveImageToRealmDB(singleImage) { (_) in
+                fetchAndSaveImageToDB(singleImage) { (_) in
                     dispatchGroup.leave()
                 }
             }
         }
         
         dispatchGroup.notify(queue: DispatchQueue.main) {
-            print("Finished fetching images")
-            self.imageResults = RealmHelper.retrieveImageURLs(self.locationSearchString)
+            self.imageResults = self.location?.imageUrls
             self.countOfImages = self.imageResults?.count
             self.imageCollectionView.reloadData()
             self.imageCollectionView.hideLoader()
         }
     }
     
-    private func fetchAndSaveImageToRealmDB(_ singleImage: ImageModel, isDone: @escaping(Bool) -> Void) {
+    private func fetchAndSaveImageToDB(_ singleImage: ImageModel, isDone: @escaping(Bool) -> Void) {
         ImageDownloadManager.fetchImage(url: singleImage.imageURL) { [self] (image) in
             if let directoryUrl = ImageDownloadManager.saveDownloadedImageToDirectory(imageName: singleImage.id, image: image) {
                 try! RealmHelper.realm.write {
@@ -217,10 +242,9 @@ class MapImagesViewController: UIViewController {
     }
     
     // Retrieve the fetched numberOfUrls field from Pin
-    func fetchCounts() -> ImageCount? {
+    private func fetchCounts() -> ImageCount? {
         let predicate = NSPredicate(format: "id = %@", locationSearchString)
         let thePin = RealmHelper.realm.objects(Pins.self).filter(predicate)
-        
         if let pin = thePin.first {
             return pin.numberOfUrls
         } else {
@@ -228,17 +252,71 @@ class MapImagesViewController: UIViewController {
         }
     }
     
-    @objc func backButtonPressed() {
-        print("Back is tapped")
+    @objc private func backButtonPressed() {
         navigationController?.popViewController(animated: true)
     }
     
-    @objc func deleteButtonPressed() {
-        print("Delete is tapped")
+    @objc private func deleteButtonPressed() {
+        let deleteAlert = UIAlertController(title: "Confirm delete?", message: "Location will be deleted", preferredStyle: UIAlertController.Style.alert)
+        
+        deleteAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction!) in
+            if let locationPin = self.location {
+                do {
+                    try RealmHelper.realm.write {
+                        self.deletFiles(files: locationPin.imageUrls)
+                        RealmHelper.realm.delete(locationPin.imageUrls)
+                        RealmHelper.realm.delete(locationPin)
+                        let vc = MapViewController()
+                        self.navigationController?.pushViewController(vc, animated: false)
+                    }
+                } catch {
+                    print("Error deleting location, \(error.localizedDescription)")
+                }
+            }
+        }))
+        
+        deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .destructive, handler: nil))
+        
+        present(deleteAlert, animated: true, completion: nil)
     }
     
-    @objc func refreshButtonPressed() {
-        print("Refresh is tapped")
+    private func deletFiles(files: ListOfImages) {
+        for image in files {
+            deleteSingleFileFromDirectory(fileName: image.directoryURLOFSavedImage)
+        }
+    }
+    
+    private func deleteSingleFileFromDirectory(fileName: String) {
+        let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let imagePath = document.appendingPathComponent(fileName)
+        do {
+            try FileManager.default.removeItem(at: imagePath)
+        } catch {
+            print("Error deleting file, \(error.localizedDescription)")
+        }
+    }
+    
+    @objc private func refreshButtonPressed() {
+        if let locationPin = location {
+            do {
+                try RealmHelper.realm.write {
+                    deletFiles(files: locationPin.imageUrls)
+                    RealmHelper.realm.delete(locationPin.imageUrls)
+                    locationPin.numberOfUrls = 0
+                    
+                    imageResults = nil
+                    countOfImages = 0
+                    imageCollectionView.setEmptyMessage("")
+                    initiateImageRequests()
+                }
+            } catch {
+                print("Error deleting location images, \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private func refreshImageRequests() {
+         setUpInitialCollectionView()
     }
     
     override func viewWillLayoutSubviews() {
@@ -246,7 +324,7 @@ class MapImagesViewController: UIViewController {
         setUpCollectionViewItemSize()
     }
     
-    func setupView() {
+    private func setupView() {
         view.addSubview(mapViewContainer)
         NSLayoutConstraint.activate([
             mapViewContainer.topAnchor.constraint(equalTo: view.topAnchor),
@@ -294,9 +372,43 @@ class MapImagesViewController: UIViewController {
             deleteButton.trailingAnchor.constraint(equalTo: refreshButton.leadingAnchor, constant: -10),
             deleteButton.centerYAnchor.constraint(equalTo: mapViewContainer.centerYAnchor, constant: -15)
         ])
+        
+        setupHintView()
     }
     
-    func configureNavBar() {
+    private func setupHintView() {
+        view.addSubview(hintView)
+        NSLayoutConstraint.activate([
+            hintView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
+            hintView.heightAnchor.constraint(equalToConstant: 80.0),
+            hintView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0),
+            hintView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0),
+        ])
+        
+        hintView.addSubview(showViewText)
+        NSLayoutConstraint.activate([
+            showViewText.centerXAnchor.constraint(equalTo: hintView.centerXAnchor),
+            showViewText.centerYAnchor.constraint(equalTo: hintView.centerYAnchor, constant: 20.0)
+        ])
+    }
+    
+    private func showHint() {
+        UIView.animate(withDuration: 1.0) {
+            self.hintView.isHidden = false
+            self.hintView.layoutIfNeeded()
+        }
+    }
+    
+    private func hideHint() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            UIView.animate(withDuration: 1.0) {
+                self.hintView.isHidden = true
+                self.hintView.layoutIfNeeded()
+            }
+        }
+    }
+    
+    private func configureNavBar() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
@@ -308,7 +420,7 @@ class MapImagesViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
-    func setUpCollectionViewItemSize() {
+    private func setUpCollectionViewItemSize() {
         if collectionViewFlowLayout == nil {
             let _: CGFloat = 5
             let lineSpacing: CGFloat = 1
@@ -318,7 +430,7 @@ class MapImagesViewController: UIViewController {
             
             collectionViewFlowLayout = UICollectionViewFlowLayout()
             
-            collectionViewFlowLayout.itemSize = CGSize(width: itemSize, height: itemSize + 20)
+            collectionViewFlowLayout.itemSize = CGSize(width: itemSize, height: itemSize)
             collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 1, left: 0, bottom: 1, right: 0)
             collectionViewFlowLayout.scrollDirection = .vertical
             collectionViewFlowLayout.minimumLineSpacing = lineSpacing
@@ -329,7 +441,7 @@ class MapImagesViewController: UIViewController {
     }
 }
 
-extension MapImagesViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ImageAlbumController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return countOfImages ?? 0
     }
@@ -340,8 +452,28 @@ extension MapImagesViewController: UICollectionViewDelegate, UICollectionViewDat
         if imageResults != nil {
             cell.configureCell(image: imageResults![indexPath.item].directoryURLOFSavedImage)
         }
-
+        
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let selectedImage = imageResults?[indexPath.item] {
+            let vc = ImageViewController()
+            vc.imageString = selectedImage.directoryURLOFSavedImage
+            vc.imageLocation = location
+            vc.selectedIndex = indexPath.item
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
+        } else {
+            showHint()
+            hideHint()
+        }
+    }
+}
+
+extension ImageAlbumController: SendControlIdDelegate {
+    func sendId(controlId: String) {
+        sentControlId = controlId
     }
 }
 

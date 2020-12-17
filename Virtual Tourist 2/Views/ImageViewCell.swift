@@ -10,33 +10,63 @@ import UIKit
 import MBProgressHUD
 
 class ImageViewCell: UICollectionViewCell {
+    let mapImageView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     let mapImage: UIImageView = {
         let image = UIImageView()
-        image.contentMode = .scaleToFill
+//        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
+    }()
+    
+    let indicator: UIActivityIndicatorView = {
+       let indicator = UIActivityIndicatorView()
+        
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        mapImage.image = #imageLiteral(resourceName: "VirtualTourist_76")
-        mapImage.showLoader(message: "")
-        
-        addSubview(mapImage)
+        addSubview(mapImageView)
         NSLayoutConstraint.activate([
-            mapImage.topAnchor.constraint(equalTo: topAnchor),
-            mapImage.leadingAnchor.constraint(equalTo: leadingAnchor),
-            mapImage.trailingAnchor.constraint(equalTo: trailingAnchor),
-            mapImage.bottomAnchor.constraint(equalTo: bottomAnchor)
+            mapImageView.topAnchor.constraint(equalTo: topAnchor),
+            mapImageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            mapImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            mapImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        mapImage.image = #imageLiteral(resourceName: "VirtualTourist_76")
+        
+        mapImageView.addSubview(mapImage)
+        NSLayoutConstraint.activate([
+            mapImage.topAnchor.constraint(equalTo: mapImageView.topAnchor),
+            mapImage.leadingAnchor.constraint(equalTo: mapImageView.leadingAnchor),
+            mapImage.trailingAnchor.constraint(equalTo: mapImageView.trailingAnchor),
+            mapImage.bottomAnchor.constraint(equalTo: mapImageView.bottomAnchor)
+        ])
+        
+        addSubview(indicator)
+        NSLayoutConstraint.activate([
+            indicator.centerXAnchor.constraint(equalTo: mapImageView.centerXAnchor),
+            indicator.centerYAnchor.constraint(equalTo: mapImageView.centerYAnchor),
+            indicator.heightAnchor.constraint(equalToConstant: 30.0),
+            indicator.widthAnchor.constraint(equalToConstant: 30.0)
+        ])
+        indicator.startAnimating()
     }
     
     func configureCell(image: String) {
         let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let imagePath = document.appendingPathComponent(image)
+        print(imagePath)
         mapImage.image = UIImage(contentsOfFile: imagePath.path)
-        mapImage.hideLoader()
+        indicator.stopAnimating()
     }
     
     override func prepareForReuse() {
@@ -50,14 +80,12 @@ class ImageViewCell: UICollectionViewCell {
 }
 
 extension UIImageView {
+    
     func showLoader(message msg: String?) {
-        let Indicator = MBProgressHUD.showAdded(to: self, animated: true)
-        Indicator.isUserInteractionEnabled = true
-        Indicator.detailsLabel.text = msg
-        Indicator.show(animated: true)
+        
     }
     
     func hideLoader() {
-        MBProgressHUD.hide(for: self, animated: true)
+        
     }
 }

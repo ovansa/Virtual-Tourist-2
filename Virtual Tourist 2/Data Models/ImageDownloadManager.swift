@@ -35,7 +35,7 @@ struct ImageDownloadManager {
             
             let task = session.dataTask(with: request) { (data, response, error) in
                 if error != nil {
-                    print("Fetching image list failed: \(error!)")
+                    print("Fetching image list failed: \("The Internet connection appears to be offline....")")
                     urlList(nil, error)
                 }
                 
@@ -99,7 +99,6 @@ struct ImageDownloadManager {
         let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let name = String("\(imageName).jpg")
         let documentUrl = document.appendingPathComponent(name)
-        print(documentUrl)
         
         if let safeImage = image.jpegData(compressionQuality: 1) {
             do {

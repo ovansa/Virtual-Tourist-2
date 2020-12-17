@@ -16,7 +16,7 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Error")
+        print("Error, \(error.localizedDescription)")
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
@@ -25,7 +25,7 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let vc = MapImagesViewController()
+        let vc = ImageAlbumController()
         let searchString = "\(view.annotation!.coordinate.latitude)" + "\(view.annotation!.coordinate.longitude)"
         
         let predicate = NSPredicate(format: "id = %@", searchString)
