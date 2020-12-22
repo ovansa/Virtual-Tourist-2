@@ -14,13 +14,12 @@ import RealmSwift
 let lightBlueColor = UIColor(displayP3Red: 3/255, green: 169/255, blue: 244/255, alpha: 1)
 
 class MapViewController: UIViewController {
+    //MARK:- Variable definitions for UI Components
     var mapView: MKMapView = {
         var map = MKMapView()
         map.translatesAutoresizingMaskIntoConstraints = false
         return map
     }()
-    
-    var showIsHidden: Bool?
     
     let showView: UIView = {
        let view = UIView()
@@ -43,16 +42,25 @@ class MapViewController: UIViewController {
     
     var pins: Results<Pins>?
     
+    //MARK:- Main Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        mapView.delegate = self
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
         setupMap()
         pins = RealmHelper.retrievePins()
         populateMapWithPins(with: pins)
+        hintCheck()
+        mapView.delegate = self
+    }
+    
+//    override func viewDidAppear(_ animated: Bool) {
+//        setupMap()
+//        pins = RealmHelper.retrievePins()
+//        populateMapWithPins(with: pins)
+//        hintCheck()
+//    }
+    
+    //MARK:- Hint Methods
+    private func hintCheck() {
         if pins!.isEmpty {
             showHint()
             hideHint()
@@ -78,8 +86,7 @@ class MapViewController: UIViewController {
         }
      }
     
-    //MARK: - Methods for setting up map
-    
+    //MARK:- Setup Map View
     private func setupMap() {
         view.addSubview(mapView)
         NSLayoutConstraint.activate([
@@ -89,13 +96,13 @@ class MapViewController: UIViewController {
             mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         initiateFetchingCurrentLocation()
-        confirgureNavBarToHidden()
+        hideNavigationBar()
         setupMapCenter()
         addAPinOnMap()
-        setupOtherViews()
+        setupHintView()
     }
     
-    func setupOtherViews() {
+    func setupHintView() {
         view.addSubview(showView)
         NSLayoutConstraint.activate([
             showView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
@@ -111,7 +118,7 @@ class MapViewController: UIViewController {
         ])
     }
 
-    func confirgureNavBarToHidden() {
+    func hideNavigationBar() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
@@ -135,14 +142,11 @@ class MapViewController: UIViewController {
         if let region = SaveMap.shared.retrieveMapRegion() {
             let mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: region.center.latitude, longitude: region.center.longitude), span: MKCoordinateSpan(latitudeDelta: region.span.latitudeDelta, longitudeDelta: region.span.longitudeDelta))
             mapView.setRegion(mapRegion, animated: true)
-        } else {
-//            let mapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: userCurrentLocation!.latitude, longitude: userCurrentLocation!.longitude), latitudinalMeters: 2000, longitudinalMeters: 2000)
-//            mapView.setRegion(mapRegion, animated: true)
         }
     }
     
-    //MARK: - Methods for adding Pins and populating map with Pins
     
+    //MARK:- Add and Populate Map with Pins
     private func addAPinOnMap() {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(addAnnotation(press:)))
         longPress.minimumPressDuration = 2.0

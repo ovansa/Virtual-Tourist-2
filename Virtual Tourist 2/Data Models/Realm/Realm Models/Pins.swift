@@ -19,10 +19,3 @@ class Pins: Object {
         return "id"
     }
 }
-
-// 1. Create models to store pins
-// 2. Create model to store image urls
-// 3. Establish a relationship between pins and image urls
-// 4. Create method to store pins
-// 5. Create method to retrieve pins
-

@@ -19,6 +19,7 @@ class ImageAlbumController: UIViewController {
     let maxImages = 42
     var sentControlId: String?
     
+    //MARK:- UI Component variables
     var mapViewContainer: UIView = {
         var view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -39,14 +40,6 @@ class ImageAlbumController: UIViewController {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
-    }()
-    
-    let backButtonView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .green
-        view.translatesAutoresizingMaskIntoConstraints = false
-        
-        return view
     }()
     
     var backButton: UIButton = {
@@ -109,10 +102,12 @@ class ImageAlbumController: UIViewController {
         }
     }
     
+    //MARK:- Main Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureNavBar()
+        hideNavigationBar()
         setupView()
         hintView.isHidden = true
         
@@ -150,9 +145,12 @@ class ImageAlbumController: UIViewController {
                 }
             }
         }
-        
         hintView.isHidden = true
-        
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        setUpCollectionViewItemSize()
     }
     
     private func setUpInitialCollectionView() {
@@ -169,7 +167,7 @@ class ImageAlbumController: UIViewController {
         }
     }
     
-    //MARK: - Fetch the list of image urls and save count to database
+    //MARK: - Methods to Fetch Images, Save Images to Directory and DB
     
     // Initiate the request for the list of images
     private func initiateImageRequests() {
@@ -192,7 +190,7 @@ class ImageAlbumController: UIViewController {
                         pin.numberOfUrls = theImageList.count > self.maxImages ? self.maxImages : theImageList.count
                     }
                     self.countOfImages = self.fetchCounts()
-                    self.downloadAndSaveImageToDirectory(theImageList)
+                    self.downloadAndSaveImages(theImageList)
                 } else {
                     print("There is no image: \(error!.localizedDescription)")
                 }
@@ -200,8 +198,8 @@ class ImageAlbumController: UIViewController {
         }
     }
     
-    // Save downloaded 
-    private func downloadAndSaveImageToDirectory(_ images: TheImageList) {
+    // Save downloaded images to directory
+    private func downloadAndSaveImages(_ images: TheImageList) {
         let dispatchGroup = DispatchGroup()
         if !images.isEmpty && images.count > maxImages {
             for singleImage in images[0..<maxImages] {
@@ -227,6 +225,7 @@ class ImageAlbumController: UIViewController {
         }
     }
     
+    // Save a single downloaded image to directory and save directory url to db
     private func fetchAndSaveImageToDB(_ singleImage: ImageModel, isDone: @escaping(Bool) -> Void) {
         ImageDownloadManager.fetchImage(url: singleImage.imageURL) { [self] (image) in
             if let directoryUrl = ImageDownloadManager.saveDownloadedImageToDirectory(imageName: singleImage.id, image: image) {
@@ -251,6 +250,8 @@ class ImageAlbumController: UIViewController {
             return 0
         }
     }
+    
+    // MARK:- Methods for Button Actions
     
     @objc private func backButtonPressed() {
         navigationController?.popViewController(animated: true)
@@ -280,22 +281,6 @@ class ImageAlbumController: UIViewController {
         present(deleteAlert, animated: true, completion: nil)
     }
     
-    private func deletFiles(files: ListOfImages) {
-        for image in files {
-            deleteSingleFileFromDirectory(fileName: image.directoryURLOFSavedImage)
-        }
-    }
-    
-    private func deleteSingleFileFromDirectory(fileName: String) {
-        let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let imagePath = document.appendingPathComponent(fileName)
-        do {
-            try FileManager.default.removeItem(at: imagePath)
-        } catch {
-            print("Error deleting file, \(error.localizedDescription)")
-        }
-    }
-    
     @objc private func refreshButtonPressed() {
         if let locationPin = location {
             do {
@@ -315,14 +300,27 @@ class ImageAlbumController: UIViewController {
         }
     }
     
+    private func deletFiles(files: ListOfImages) {
+        for image in files {
+            deleteSingleFileFromDirectory(fileName: image.directoryURLOFSavedImage)
+        }
+    }
+    
+    private func deleteSingleFileFromDirectory(fileName: String) {
+        let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let imagePath = document.appendingPathComponent(fileName)
+        do {
+            try FileManager.default.removeItem(at: imagePath)
+        } catch {
+            print("Error deleting file, \(error.localizedDescription)")
+        }
+    }
+    
     private func refreshImageRequests() {
          setUpInitialCollectionView()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        setUpCollectionViewItemSize()
-    }
+    //MARK:- Methods to Setup Image Album View
     
     private func setupView() {
         view.addSubview(mapViewContainer)
@@ -392,6 +390,7 @@ class ImageAlbumController: UIViewController {
         ])
     }
     
+    //MARK:- Methods to Show and Hide Hint Message
     private func showHint() {
         UIView.animate(withDuration: 1.0) {
             self.hintView.isHidden = false
@@ -408,7 +407,12 @@ class ImageAlbumController: UIViewController {
         }
     }
     
-    private func configureNavBar() {
+    func hintCheck() {
+        showHint()
+        hideHint()
+    }
+    
+    private func hideNavigationBar() {
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.navigationBar.isTranslucent = true
@@ -424,56 +428,20 @@ class ImageAlbumController: UIViewController {
         if collectionViewFlowLayout == nil {
             let _: CGFloat = 5
             let lineSpacing: CGFloat = 1
-            let interItemSpacing: CGFloat = 1
+            let interItemSpacing: CGFloat = 0
             
-            let itemSize = self.view.bounds.width / 3 - 1
+            let itemSize = self.view.bounds.width / 3 - 2
             
             collectionViewFlowLayout = UICollectionViewFlowLayout()
             
             collectionViewFlowLayout.itemSize = CGSize(width: itemSize, height: itemSize)
-            collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 1, left: 0, bottom: 1, right: 0)
+            collectionViewFlowLayout.sectionInset = UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
             collectionViewFlowLayout.scrollDirection = .vertical
             collectionViewFlowLayout.minimumLineSpacing = lineSpacing
             collectionViewFlowLayout.minimumInteritemSpacing = interItemSpacing
             
             imageCollectionView.setCollectionViewLayout(collectionViewFlowLayout, animated: true)
         }
-    }
-}
-
-extension ImageAlbumController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return countOfImages ?? 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = imageCollectionView.dequeueReusableCell(withReuseIdentifier: collectionCellId, for: indexPath) as! ImageViewCell
-        
-        if imageResults != nil {
-            cell.configureCell(image: imageResults![indexPath.item].directoryURLOFSavedImage)
-        }
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let selectedImage = imageResults?[indexPath.item] {
-            let vc = ImageViewController()
-            vc.imageString = selectedImage.directoryURLOFSavedImage
-            vc.imageLocation = location
-            vc.selectedIndex = indexPath.item
-            vc.delegate = self
-            navigationController?.pushViewController(vc, animated: true)
-        } else {
-            showHint()
-            hideHint()
-        }
-    }
-}
-
-extension ImageAlbumController: SendControlIdDelegate {
-    func sendId(controlId: String) {
-        sentControlId = controlId
     }
 }
 
@@ -495,7 +463,8 @@ extension UIButton {
     }
 }
 
-extension UICollectionView {
+
+private extension UICollectionView {
     func setEmptyMessage(_ message: String) {
         let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
         messageLabel.text = message

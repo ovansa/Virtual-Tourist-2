@@ -16,6 +16,7 @@
 		0B0E98AD25481EDD00F092FF /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98AC25481EDD00F092FF /* MapViewController.swift */; };
 		0B0E98AF25482CC000F092FF /* MapViewController+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */; };
 		0B0E98B12548463900F092FF /* SaveMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98B02548463900F092FF /* SaveMap.swift */; };
+		0B2D14AB259236F700D3544F /* ImageAlbumController+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D14AA259236F700D3544F /* ImageAlbumController+extension.swift */; };
 		0B6694432549387E00E9DE30 /* Pins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694422549387E00E9DE30 /* Pins.swift */; };
 		0B66944525493DB200E9DE30 /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944425493DB200E9DE30 /* Images.swift */; };
 		0B6694492549EE2F00E9DE30 /* ImageAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694482549EE2F00E9DE30 /* ImageAlbumController.swift */; };
@@ -38,6 +39,7 @@
 		0B0E98AC25481EDD00F092FF /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MapViewController+extension.swift"; sourceTree = "<group>"; };
 		0B0E98B02548463900F092FF /* SaveMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMap.swift; sourceTree = "<group>"; };
+		0B2D14AA259236F700D3544F /* ImageAlbumController+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImageAlbumController+extension.swift"; sourceTree = "<group>"; };
 		0B6694422549387E00E9DE30 /* Pins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pins.swift; sourceTree = "<group>"; };
 		0B66944425493DB200E9DE30 /* Images.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
 		0B6694482549EE2F00E9DE30 /* ImageAlbumController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAlbumController.swift; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 		0B027A4B2554570300C2180F /* Realm */ = {
 			isa = PBXGroup;
 			children = (
+				0B2D14AC25923CBD00D3544F /* Realm Models */,
 				0B027A4C255457ED00C2180F /* RealmHelper.swift */,
 			);
 			path = Realm;
@@ -100,17 +103,24 @@
 				0B0E98A125481E8600F092FF /* Assets.xcassets */,
 				0B0E98A325481E8600F092FF /* LaunchScreen.storyboard */,
 				0B0E98A625481E8600F092FF /* Info.plist */,
-				0B0E98B02548463900F092FF /* SaveMap.swift */,
 			);
 			path = "Virtual Tourist 2";
+			sourceTree = "<group>";
+		};
+		0B2D14AC25923CBD00D3544F /* Realm Models */ = {
+			isa = PBXGroup;
+			children = (
+				0B6694422549387E00E9DE30 /* Pins.swift */,
+				0B66944425493DB200E9DE30 /* Images.swift */,
+			);
+			path = "Realm Models";
 			sourceTree = "<group>";
 		};
 		0B6694412549386100E9DE30 /* Data Models */ = {
 			isa = PBXGroup;
 			children = (
 				0B027A4B2554570300C2180F /* Realm */,
-				0B6694422549387E00E9DE30 /* Pins.swift */,
-				0B66944425493DB200E9DE30 /* Images.swift */,
+				0B0E98B02548463900F092FF /* SaveMap.swift */,
 				0B66944C254C20AB00E9DE30 /* ImageDownloadManager.swift */,
 				0B66944E254C28EC00E9DE30 /* ImageURLS.swift */,
 			);
@@ -123,6 +133,7 @@
 				0B0E98AC25481EDD00F092FF /* MapViewController.swift */,
 				0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */,
 				0B6694482549EE2F00E9DE30 /* ImageAlbumController.swift */,
+				0B2D14AA259236F700D3544F /* ImageAlbumController+extension.swift */,
 				0B901BE0257D5A390009A6BC /* ImageViewController.swift */,
 			);
 			path = Controllers;
@@ -279,6 +290,7 @@
 				0B6694492549EE2F00E9DE30 /* ImageAlbumController.swift in Sources */,
 				0B0E98AD25481EDD00F092FF /* MapViewController.swift in Sources */,
 				0B6694432549387E00E9DE30 /* Pins.swift in Sources */,
+				0B2D14AB259236F700D3544F /* ImageAlbumController+extension.swift in Sources */,
 				0B0E98B12548463900F092FF /* SaveMap.swift in Sources */,
 				0B0E98AF25482CC000F092FF /* MapViewController+extension.swift in Sources */,
 			);

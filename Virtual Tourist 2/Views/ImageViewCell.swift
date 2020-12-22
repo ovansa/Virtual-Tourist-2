@@ -18,7 +18,6 @@ class ImageViewCell: UICollectionViewCell {
     
     let mapImage: UIImageView = {
         let image = UIImageView()
-//        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -30,9 +29,7 @@ class ImageViewCell: UICollectionViewCell {
         return indicator
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
+    private func setupImageCell() {
         addSubview(mapImageView)
         NSLayoutConstraint.activate([
             mapImageView.topAnchor.constraint(equalTo: topAnchor),
@@ -40,8 +37,6 @@ class ImageViewCell: UICollectionViewCell {
             mapImageView.trailingAnchor.constraint(equalTo: trailingAnchor),
             mapImageView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-        
-        mapImage.image = #imageLiteral(resourceName: "VirtualTourist_76")
         
         mapImageView.addSubview(mapImage)
         NSLayoutConstraint.activate([
@@ -58,6 +53,13 @@ class ImageViewCell: UICollectionViewCell {
             indicator.heightAnchor.constraint(equalToConstant: 30.0),
             indicator.widthAnchor.constraint(equalToConstant: 30.0)
         ])
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        setupImageCell()
+        mapImageView.showEmptyView()
         indicator.startAnimating()
     }
     
@@ -67,11 +69,7 @@ class ImageViewCell: UICollectionViewCell {
         print(imagePath)
         mapImage.image = UIImage(contentsOfFile: imagePath.path)
         indicator.stopAnimating()
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        mapImage.image = #imageLiteral(resourceName: "VirtualTourist_76")
+        mapImageView.hideEmptyView()
     }
     
     required init?(coder: NSCoder) {
@@ -79,13 +77,18 @@ class ImageViewCell: UICollectionViewCell {
     }
 }
 
-extension UIImageView {
-    
-    func showLoader(message msg: String?) {
+extension UIView {
+    func showEmptyView() {
+        self.layer.borderWidth = 1.0
+        self.layer.borderColor = UIColor.gray.withAlphaComponent(0.7).cgColor
         
+        let color = UIColor(displayP3Red: 248/255, green: 245/255, blue: 238/255, alpha: 1)
+        self.backgroundColor = color.withAlphaComponent(0.8)
     }
     
-    func hideLoader() {
-        
+    func hideEmptyView() {
+        self.layer.borderWidth = 0.0
+        self.layer.borderColor = nil
+        self.backgroundColor = nil
     }
 }
