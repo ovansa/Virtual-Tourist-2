@@ -13,6 +13,7 @@ typealias ImageList = [String]
 typealias TheImageList = [ImageModel]
 
 struct ImageDownloadManager {
+    static let api_key = "d2f8674bbf96cb652663f7eeba742af0"
     let realm = try! Realm()
     static let imageURL = "https://www.flickr.com/services/rest/"
     
@@ -22,7 +23,7 @@ struct ImageDownloadManager {
         if var imageListUrl = URLComponents(string: imageURL) {
             imageListUrl.queryItems = [
                 URLQueryItem(name: "method", value: "flickr.photos.search"),
-                URLQueryItem(name: "api_key", value: "d2f8674bbf96cb652663f7eeba742af0"),
+                URLQueryItem(name: "api_key", value: api_key),
                 URLQueryItem(name: "privacy_filter", value: "1"),
                 URLQueryItem(name: "lat", value: String(latitude)),
                 URLQueryItem(name: "lon", value: String(longitude)),
