@@ -96,7 +96,6 @@
 		0B0E989725481E8500F092FF /* Virtual Tourist 2 */ = {
 			isa = PBXGroup;
 			children = (
-				0B2D14AD2593131100D3544F /* Utils */,
 				0B6694412549386100E9DE30 /* Data Models */,
 				0B6694472549EDE300E9DE30 /* Views */,
 				0B6694462549EDC600E9DE30 /* Controllers */,
@@ -119,17 +118,10 @@
 			path = "Realm Models";
 			sourceTree = "<group>";
 		};
-		0B2D14AD2593131100D3544F /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				0B2D14AE2593132300D3544F /* Utils.swift */,
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
 		0B6694412549386100E9DE30 /* Data Models */ = {
 			isa = PBXGroup;
 			children = (
+				0B2D14AE2593132300D3544F /* Utils.swift */,
 				0B027A4B2554570300C2180F /* Realm */,
 				0B0E98B02548463900F092FF /* SaveMap.swift */,
 				0B66944C254C20AB00E9DE30 /* ImageDownloadManager.swift */,

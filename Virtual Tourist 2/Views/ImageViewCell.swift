@@ -66,7 +66,7 @@ class ImageViewCell: UICollectionViewCell {
     func configureCell(image: String) {
         let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let imagePath = document.appendingPathComponent(image)
-        print(imagePath)
+//        print(imagePath)
         mapImage.image = UIImage(contentsOfFile: imagePath.path)
         indicator.stopAnimating()
         mapImageView.hideEmptyView()

@@ -16,9 +16,6 @@ typealias ListOfImages = List<Images>
 
 class ImageAlbumController: UIViewController {
     
-    let maxImages = 42
-    var sentControlId: String?
-    
     //MARK:- UI Component variables
     var mapViewContainer: UIView = {
         var view = UIView()
@@ -84,18 +81,16 @@ class ImageAlbumController: UIViewController {
         return label
     }()
     
+    let maxImages = 42
     let collectionCellId = "cellId"
+    var sentControlId: String?
     var collectionViewFlowLayout: UICollectionViewFlowLayout!
-    
     var locationSearchString: String {
         return "\(locationAnnotation?.annotation?.coordinate.latitude ?? 0.0)" + "\(locationAnnotation?.annotation?.coordinate.longitude ?? 0.0)"
     }
-    
     var location: Pins?
     var locationAnnotation: MKAnnotationView?
-    
     var imageResults: List<Images>?
-    
     var countOfImages: ImageCount? {
         didSet {
             setUpInitialCollectionView()
@@ -103,7 +98,6 @@ class ImageAlbumController: UIViewController {
     }
     
     //MARK:- Main Methods
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -252,7 +246,6 @@ class ImageAlbumController: UIViewController {
     }
     
     // MARK:- Methods for Button Actions
-    
     @objc private func backButtonPressed() {
         navigationController?.popViewController(animated: true)
     }
@@ -261,24 +254,26 @@ class ImageAlbumController: UIViewController {
         let deleteAlert = UIAlertController(title: "Confirm delete?", message: "Location will be deleted", preferredStyle: UIAlertController.Style.alert)
         
         deleteAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action: UIAlertAction!) in
-            if let locationPin = self.location {
-                do {
-                    try RealmHelper.realm.write {
-                        self.deletFiles(files: locationPin.imageUrls)
-                        RealmHelper.realm.delete(locationPin.imageUrls)
-                        RealmHelper.realm.delete(locationPin)
-                        let vc = MapViewController()
-                        self.navigationController?.pushViewController(vc, animated: false)
-                    }
-                } catch {
-                    print("Error deleting location, \(error.localizedDescription)")
-                }
-            }
+            self.deleteLocation()
         }))
-        
         deleteAlert.addAction(UIAlertAction(title: "Cancel", style: .destructive, handler: nil))
-        
         present(deleteAlert, animated: true, completion: nil)
+    }
+    
+    fileprivate func deleteLocation() {
+        if let locationPin = self.location {
+            do {
+                try RealmHelper.realm.write {
+                    self.deletFiles(files: locationPin.imageUrls)
+                    RealmHelper.realm.delete(locationPin.imageUrls)
+                    RealmHelper.realm.delete(locationPin)
+                    let vc = MapViewController()
+                    self.navigationController?.pushViewController(vc, animated: false)
+                }
+            } catch {
+                print("Error deleting location, \(error.localizedDescription)")
+            }
+        }
     }
     
     @objc private func refreshButtonPressed() {
