@@ -17,6 +17,7 @@
 		0B0E98AF25482CC000F092FF /* MapViewController+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */; };
 		0B0E98B12548463900F092FF /* SaveMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0E98B02548463900F092FF /* SaveMap.swift */; };
 		0B2D14AB259236F700D3544F /* ImageAlbumController+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D14AA259236F700D3544F /* ImageAlbumController+extension.swift */; };
+		0B2D14AF2593132300D3544F /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2D14AE2593132300D3544F /* Utils.swift */; };
 		0B6694432549387E00E9DE30 /* Pins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694422549387E00E9DE30 /* Pins.swift */; };
 		0B66944525493DB200E9DE30 /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B66944425493DB200E9DE30 /* Images.swift */; };
 		0B6694492549EE2F00E9DE30 /* ImageAlbumController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6694482549EE2F00E9DE30 /* ImageAlbumController.swift */; };
@@ -40,6 +41,7 @@
 		0B0E98AE25482CC000F092FF /* MapViewController+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MapViewController+extension.swift"; sourceTree = "<group>"; };
 		0B0E98B02548463900F092FF /* SaveMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMap.swift; sourceTree = "<group>"; };
 		0B2D14AA259236F700D3544F /* ImageAlbumController+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImageAlbumController+extension.swift"; sourceTree = "<group>"; };
+		0B2D14AE2593132300D3544F /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		0B6694422549387E00E9DE30 /* Pins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pins.swift; sourceTree = "<group>"; };
 		0B66944425493DB200E9DE30 /* Images.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
 		0B6694482549EE2F00E9DE30 /* ImageAlbumController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAlbumController.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 		0B0E989725481E8500F092FF /* Virtual Tourist 2 */ = {
 			isa = PBXGroup;
 			children = (
+				0B2D14AD2593131100D3544F /* Utils */,
 				0B6694412549386100E9DE30 /* Data Models */,
 				0B6694472549EDE300E9DE30 /* Views */,
 				0B6694462549EDC600E9DE30 /* Controllers */,
@@ -114,6 +117,14 @@
 				0B66944425493DB200E9DE30 /* Images.swift */,
 			);
 			path = "Realm Models";
+			sourceTree = "<group>";
+		};
+		0B2D14AD2593131100D3544F /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0B2D14AE2593132300D3544F /* Utils.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		0B6694412549386100E9DE30 /* Data Models */ = {
@@ -284,6 +295,7 @@
 				0B66944B254C179000E9DE30 /* ImageViewCell.swift in Sources */,
 				0B0E989925481E8500F092FF /* AppDelegate.swift in Sources */,
 				0B66944D254C20AB00E9DE30 /* ImageDownloadManager.swift in Sources */,
+				0B2D14AF2593132300D3544F /* Utils.swift in Sources */,
 				0B66944F254C28EC00E9DE30 /* ImageURLS.swift in Sources */,
 				0B901BE1257D5A390009A6BC /* ImageViewController.swift in Sources */,
 				0B0E989B25481E8500F092FF /* SceneDelegate.swift in Sources */,

@@ -94,10 +94,10 @@ struct ImageDownloadManager {
             task.resume()
         }
     }
-
+    
     static func saveDownloadedImageToDirectory(imageName: String, image: UIImage) -> String? {
         let document = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let name = String("\(imageName).jpg")
+        let name = String("\(imageName)\(randomString(length: 9)).jpg")
         let documentUrl = document.appendingPathComponent(name)
         
         if let safeImage = image.jpegData(compressionQuality: 1) {
