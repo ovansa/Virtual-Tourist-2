@@ -10,4 +10,5 @@ This app allows users specify travel locations around the world, and create virt
 - User can reload a location's image collection/album
 - User can swipe left/right to view images
 
-
+## Screenshots
+![screenshot1](https://user-images.githubusercontent.com/7291106/102977999-19cd4200-4504-11eb-9e9e-014dec839a25.jpg)
